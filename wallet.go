@@ -27,9 +27,37 @@ func (c *Client) NodeInfoAsync() FutureNodeInfo {
 	cmd := adajson.NewNodeInfoCmd()
 	return c.sendCmd(cmd)
 }
-
+// Retrieves the dynamic information for this node
 func (c *Client) NodeInfo() (*adajson.NodeInfoResult, error) {
 	return c.NodeInfoAsync().Receive()
+}
+
+
+type FutureNodeSettings chan *response
+
+func (r FutureNodeSettings) Receive() (*adajson.NodeSettings, error) {
+	res, _, err := receiveFuture(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var info adajson.NodeSettings
+	err = json.Unmarshal(res, &info)
+	if err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+func (c *Client) NodeSettingsAsync() FutureNodeSettings {
+
+	cmd := adajson.NewNodeSettingsCmd()
+	return c.sendCmd(cmd)
+}
+// Retrieves the static settings for this node.
+func (c *Client) NodeSettings() (*adajson.NodeSettings, error) {
+	return c.NodeSettingsAsync().Receive()
 }
 
 type FutureCreateWallet chan *response
@@ -58,11 +86,65 @@ func (c *Client) CreateWalletAsync(backupPhrase []string,
 	return c.sendCmd(cmd)
 }
 
+// Creates a new  Wallet
 func (c *Client) CreateWallet(backupPhrase []string,
 	assuranceLevel, name, spendingPassword string) (*adajson.WalletInfo, error) {
 
 	return c.CreateWalletAsync(backupPhrase, assuranceLevel, name, spendingPassword).Receive()
 }
+
+func (c *Client) RestoreWalletAsync(backupPhrase []string,
+	assuranceLevel, name, spendingPassword string) FutureCreateWallet {
+
+	cmd := adajson.NewCreateWalletCmd("restore", backupPhrase,
+		assuranceLevel, name, spendingPassword)
+
+	return c.sendCmd(cmd)
+}
+// Restores an existing Wallet
+func (c *Client) RestoreWallet(backupPhrase []string,
+	assuranceLevel, name, spendingPassword string) (*adajson.WalletInfo, error) {
+
+	return c.RestoreWalletAsync(backupPhrase, assuranceLevel, name, spendingPassword).Receive()
+}
+
+func (c *Client) UpdatePwdAsync(walletId, op, np string) FutureWalletInfo {
+
+	cmd := adajson.NewUpdatePwdCmd(walletId, op, np)
+	return c.sendCmd(cmd)
+}
+// Updates the password for the given Wallet.
+func (c *Client) UpdatePwd(walletId, op, np string) (*adajson.WalletInfo, error) {
+	return c.UpdatePwdAsync(walletId, op, np).Receive()
+}
+
+type FutureWalletInfo chan *response
+
+func (r FutureWalletInfo) Receive() (*adajson.WalletInfo, error) {
+	res, _, err := receiveFuture(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var info adajson.WalletInfo
+	err = json.Unmarshal(res, &info)
+	if err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+func (c *Client) UpdateWalletInfoAsync(walletId, assuranceLevel, name string) FutureWalletInfo {
+
+	cmd := adajson.NewUpdateWalletInfoCmd(walletId, assuranceLevel, name)
+	return c.sendCmd(cmd)
+}
+// Update the Wallet identified by the given walletId.
+func (c *Client) UpdateWalletInfo(walletId, assuranceLevel, name string) (*adajson.WalletInfo, error) {
+	return c.UpdateWalletInfoAsync(walletId, assuranceLevel, name).Receive()
+}
+
 
 type FutureGetWallets chan *response
 
@@ -87,7 +169,7 @@ func (c *Client) GetWalletsAsync(page, perPage int) FutureGetWallets {
 
 	return c.sendCmd(cmd)
 }
-
+// Returns a list of the available wallets
 func (c *Client) GetWallets(page, perPage int) ([]adajson.WalletInfo, error) {
 	return c.GetWalletsAsync(page, perPage).Receive()
 }
@@ -114,7 +196,7 @@ func (c *Client) GetWalletAsync(walletId string) FutureCreateWallet {
 	cmd := adajson.NewGetWalletCmd(walletId)
 	return c.sendCmd(cmd)
 }
-
+// Returns the Wallet identified by the given walletId
 func (c *Client) GetWallet(walletId string) (*adajson.WalletInfo, error) {
 	return c.GetWalletAsync(walletId).Receive()
 }
@@ -142,7 +224,7 @@ func (c *Client) CreateAddressAsync(walletId, spendingPassword string, accountIn
 
 	return c.sendCmd(cmd)
 }
-
+// Creates a new Address
 func (c *Client) CreateAddress(walletId, spendingPassword string, accountIndex int) (*adajson.Address, error) {
 	return c.CreateAddressAsync(walletId, spendingPassword, accountIndex).Receive()
 }
@@ -170,7 +252,7 @@ func (c *Client) GetAddressAsync(addressId string) FutureGetAddress {
 
 	return c.sendCmd(cmd)
 }
-
+// Returns interesting information about an address, if available and valid.
 func (c *Client) GetAddress(addressId string) (*adajson.Address, error) {
 	return c.GetAddressAsync(addressId).Receive()
 }
@@ -195,10 +277,9 @@ func (r FutureGetAddresses) Receive() ([]adajson.Address, error) {
 func (c *Client) GetAddressesAsync(page, perPage int) FutureGetAddresses {
 
 	cmd := adajson.NewGetAddressesCmd(page, perPage)
-
 	return c.sendCmd(cmd)
 }
-
+// Returns a list of the addresses
 func (c *Client) GetAddresses(page, perPage int) ([]adajson.Address, error) {
 	return c.GetAddressesAsync(page, perPage).Receive()
 }
@@ -226,7 +307,7 @@ func (c *Client) CreateAccountAsync(walletId, name, pwd string) FutureCreateAcco
 
 	return c.sendCmd(cmd)
 }
-
+// Creates a new Account for the given Wallet
 func (c *Client) CreateAccount(walletId, name, pwd string) (*adajson.Account, error) {
 	return c.CreateAccountAsync(walletId, name, pwd).Receive()
 }
@@ -254,7 +335,7 @@ func (c *Client) GetAccountAsync(walletId string, page, perPage int) FutureGetAc
 
 	return c.sendCmd(cmd)
 }
-
+// Retrieves the full list of Accounts
 func (c *Client) GetAccount(walletId string, page, perPage int) ([]adajson.Account, error) {
 	return c.GetAccountAsync(walletId, page, perPage).Receive()
 }
@@ -284,7 +365,7 @@ func (c *Client) GetTransactionsAsync(walletId string, accountIndex int,
 
 	return c.sendCmd(cmd)
 }
-
+// Returns the transaction history, i.e the list of all the past transactions.
 func (c *Client) GetTransactions(walletId string, accountIndex int,
 	sortBy string, page, pageSiz int, id string) ([]*adajson.Transaction, error) {
 
@@ -315,7 +396,8 @@ func (c *Client) CreateTransactionAsync(destinations []adajson.Destination,
 	cmd := adajson.NewCreateTransactionCmd(destinations, source, pwd)
 	return c.sendCmd(cmd)
 }
-
+// Generates a new transaction from the source to
+// one or multiple target addresses.
 func (c *Client) CreateTransaction(destinations []adajson.Destination, source adajson.Source,
 	pwd string) (*adajson.Transaction, error) {
 
@@ -348,7 +430,7 @@ func (c *Client) EstimatingTxFeesAsync(destinations []adajson.Destination,
 	cmd := adajson.NewEstimatingTxFeesCmd(destinations, source, pwd, policy)
 	return c.sendCmd(cmd)
 }
-
+// Estimate the fees which would originate from the payment.
 func (c *Client) EstimatingTxFees(destinations []adajson.Destination, source adajson.Source,
 	pwd string, policy *string) (int64, error) {
 

@@ -89,6 +89,12 @@ func NewNodeInfoCmd() *NodeInfoCmd {
 	return &NodeInfoCmd{}
 }
 
+type NodeSettingsCmd struct{}
+
+func NewNodeSettingsCmd() *NodeSettingsCmd {
+	return &NodeSettingsCmd{}
+}
+
 type GetTransactionsCmd struct {
 	WalletId     string `json:"wallet_id" qstring:"wallet_id"`
 	AccountIndex int    `json:"account_index" qstring:"account_index"`
@@ -174,6 +180,45 @@ func NewGetWalletsCmd(page, perPage int) *GetWalletsCmd {
 	}
 }
 
+type UpdatePwdCmd struct {
+	WalletId string `json:"-" path:"walletId"`
+	Old      string `json:"old"`
+	New      string `json:"new"`
+}
+
+func NewUpdatePwdCmd(walletId, oldPwd, newPwd string) *UpdatePwdCmd {
+	return &UpdatePwdCmd{
+		WalletId: walletId,
+		Old:      oldPwd,
+		New:      newPwd,
+	}
+}
+
+type UpdateWalletInfoCmd struct {
+	WalletId       string `json:"-" path:"walletId"`
+	AssuranceLevel string `json:"assuranceLevel"`
+	Name           string `json:"name"`
+}
+
+func NewUpdateWalletInfoCmd(walletId, assuranceLevel, name string) *UpdateWalletInfoCmd {
+	return &UpdateWalletInfoCmd{
+		WalletId:       walletId,
+		AssuranceLevel: assuranceLevel,
+		Name:           name,
+	}
+}
+
+
+type DeleteWalletCmd struct {
+	WalletId       string `json:"-" path:"walletId"`
+}
+
+func NewDeleteWalletCmd(walletId string) *DeleteWalletCmd {
+	return &DeleteWalletCmd{
+		WalletId:       walletId,
+	}
+}
+
 func init() {
 	// No special flags for commands in this file.
 	flags := UsageFlag(0)
@@ -182,12 +227,16 @@ func init() {
 	MustRegisterCmd("addresses/{{addressId}}:get", (*GetAddressCmd)(nil), flags)
 
 	MustRegisterCmd("node-info:get", (*NodeInfoCmd)(nil), flags)
+	MustRegisterCmd("node-settings:get", (*NodeSettingsCmd)(nil), flags)
 
 	MustRegisterCmd("wallets:post", (*CreateWalletCmd)(nil), flags)
 	MustRegisterCmd("wallets:get", (*GetWalletsCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}:get", (*GetWalletCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}/accounts:post", (*CreateAccountCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}/accounts:get", (*GetAccountCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/password:put", (*UpdatePwdCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}:put", (*UpdateWalletInfoCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}:delete", (*DeleteWalletCmd)(nil), flags)
 
 	MustRegisterCmd("transactions:get", (*GetTransactionsCmd)(nil), flags)
 	MustRegisterCmd("transactions:post", (*CreateTransactionCmd)(nil), flags)

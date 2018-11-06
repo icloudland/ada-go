@@ -191,6 +191,7 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 	}
 	url := protocol + "://" + c.config.Host + "/" + c.config.BasePath + jReq.path
 	bodyReader := bytes.NewReader(jReq.marshalledJSON)
+	fmt.Println(url)
 	fmt.Println(string(jReq.marshalledJSON[:]))
 	httpReq, err := http.NewRequest(jReq.requestType, url, bodyReader)
 	if err != nil {

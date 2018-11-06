@@ -35,6 +35,19 @@ type NodeInfoResult struct {
 	} `json:"syncProgress"`
 }
 
+type NodeSettings struct {
+	GitRevision    string `json:"gitRevision"`
+	ProjectVersion string `json:"projectVersion"`
+	SlotDuration   struct {
+		Quantity int    `json:"quantity"`
+		Unit     string `json:"unit"`
+	} `json:"slotDuration"`
+	SoftwareInfo struct {
+		ApplicationName string `json:"applicationName"`
+		Version         int    `json:"version"`
+	} `json:"softwareInfo"`
+}
+
 type WalletInfo struct {
 	AssuranceLevel             string `json:"assuranceLevel"`
 	Balance                    int64  `json:"balance"`

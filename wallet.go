@@ -391,17 +391,17 @@ func (r FutureCreateTransaction) Receive() (*adajson.Transaction, error) {
 }
 
 func (c *Client) CreateTransactionAsync(destinations []adajson.Destination,
-	source adajson.Source, pwd string) FutureCreateTransaction {
+	source adajson.Source, pwd string, policy string) FutureCreateTransaction {
 
-	cmd := adajson.NewCreateTransactionCmd(destinations, source, pwd)
+	cmd := adajson.NewCreateTransactionCmd(destinations, source, pwd, policy)
 	return c.sendCmd(cmd)
 }
 // Generates a new transaction from the source to
 // one or multiple target addresses.
 func (c *Client) CreateTransaction(destinations []adajson.Destination, source adajson.Source,
-	pwd string) (*adajson.Transaction, error) {
+	pwd string, policy string) (*adajson.Transaction, error) {
 
-	return c.CreateTransactionAsync(destinations, source, pwd).Receive()
+	return c.CreateTransactionAsync(destinations, source, pwd, policy).Receive()
 }
 
 type FutureEstimatingTxFees chan *response

@@ -120,14 +120,16 @@ type CreateTransactionCmd struct {
 	Destinations     []Destination `json:"destinations"`
 	Source           Source        `json:"source"`
 	SpendingPassword string        `json:"spendingPassword"`
+	GroupingPolicy   string        `json:"groupingPolicy"`
 }
 
 func NewCreateTransactionCmd(destinations []Destination, source Source,
-	pwd string) *CreateTransactionCmd {
+	pwd string, gp string) *CreateTransactionCmd {
 	return &CreateTransactionCmd{
 		Destinations:     destinations,
 		Source:           source,
 		SpendingPassword: pwd,
+		GroupingPolicy:   gp,
 	}
 }
 
@@ -208,14 +210,13 @@ func NewUpdateWalletInfoCmd(walletId, assuranceLevel, name string) *UpdateWallet
 	}
 }
 
-
 type DeleteWalletCmd struct {
-	WalletId       string `json:"-" path:"walletId"`
+	WalletId string `json:"-" path:"walletId"`
 }
 
 func NewDeleteWalletCmd(walletId string) *DeleteWalletCmd {
 	return &DeleteWalletCmd{
-		WalletId:       walletId,
+		WalletId: walletId,
 	}
 }
 

@@ -101,8 +101,8 @@ type GetTransactionsCmd struct {
 	SortBy       string `json:"sort_by" qstring:"sort_by"`
 	Page         int    `json:"page" qstring:"page"`
 	PerPage      int    `json:"per_page" qstring:"per_page"`
-	ID           string `json:"id" qstring:"id"`
-	Address      string `json:"address" qstring:"address"`
+	ID           string `json:"id" qstring:"id,omitempty"`
+	Address      string `json:"address" qstring:"address,omitempty"`
 }
 
 func NewGetTransactionsCmd(walletId string, accountIndex int,

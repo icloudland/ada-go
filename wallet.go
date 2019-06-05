@@ -358,19 +358,19 @@ func (r FutureGetTransactions) Receive() ([]*adajson.Transaction, error) {
 }
 
 func (c *Client) GetTransactionsAsync(walletId string, accountIndex int,
-	sortBy string, page, pageSize int, id string) FutureGetTransactions {
+	sortBy string, page, pageSize int, id string, address string) FutureGetTransactions {
 
 	cmd := adajson.NewGetTransactionsCmd(walletId, accountIndex,
-		sortBy, page, pageSize, id)
+		sortBy, page, pageSize, id, address)
 
 	return c.sendCmd(cmd)
 }
 // Returns the transaction history, i.e the list of all the past transactions.
 func (c *Client) GetTransactions(walletId string, accountIndex int,
-	sortBy string, page, pageSiz int, id string) ([]*adajson.Transaction, error) {
+	sortBy string, page, pageSiz int, id string, address string) ([]*adajson.Transaction, error) {
 
 	return c.GetTransactionsAsync(walletId, accountIndex,
-		sortBy, page, pageSiz, id).Receive()
+		sortBy, page, pageSiz, id, address).Receive()
 }
 
 type FutureCreateTransaction chan *response

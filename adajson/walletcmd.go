@@ -102,10 +102,11 @@ type GetTransactionsCmd struct {
 	Page         int    `json:"page" qstring:"page"`
 	PerPage      int    `json:"per_page" qstring:"per_page"`
 	ID           string `json:"id" qstring:"id"`
+	Address      string `json:"address" qstring:"address"`
 }
 
 func NewGetTransactionsCmd(walletId string, accountIndex int,
-	sortBy string, page, perPage int, id string) *GetTransactionsCmd {
+	sortBy string, page, perPage int, id string, address string) *GetTransactionsCmd {
 	return &GetTransactionsCmd{
 		WalletId:     walletId,
 		AccountIndex: accountIndex,
@@ -113,6 +114,7 @@ func NewGetTransactionsCmd(walletId string, accountIndex int,
 		Page:         page,
 		PerPage:      perPage,
 		ID:           id,
+		Address:      address,
 	}
 }
 
@@ -235,6 +237,7 @@ func init() {
 	MustRegisterCmd("wallets/{{walletId}}:get", (*GetWalletCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}/accounts:post", (*CreateAccountCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}/accounts:get", (*GetAccountCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/accounts:delete", (*GetAccountCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}/password:put", (*UpdatePwdCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}:put", (*UpdateWalletInfoCmd)(nil), flags)
 	MustRegisterCmd("wallets/{{walletId}}:delete", (*DeleteWalletCmd)(nil), flags)

@@ -10,5 +10,5 @@ func TestGenUnRepeatMnemonic(t *testing.T) {
 }
 
 func TestGenSpendingPassword(t *testing.T) {
-	log.Println(GenSpendingPassword("hello world"))
+	log.Println(GenSpendingPassword("xinshangadabzhl"))
 }

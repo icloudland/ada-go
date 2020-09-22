@@ -246,4 +246,12 @@ func init() {
 	MustRegisterCmd("transactions:post", (*CreateTransactionCmd)(nil), flags)
 	MustRegisterCmd("transactions/fees:post", (*EstimatingTxFeesCmd)(nil), flags)
 
+	MustRegisterCmd("wallets:post:shelley", (*ShelleyCreateWalletCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}:get:shelley", (*GetShelleyWalletCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/transactions:get:shelley", (*GetShelleyTransactionsCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/addresses:get:shelley", (*GetShelleyAddressesCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/transactions:post:shelley", (*CreateShelleyTransactionCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/transactions/{{transactionId}}:get:shelley", (*GetShelleyTransactionCmd)(nil), flags)
+	MustRegisterCmd("wallets/{{walletId}}/payment-fees:post:shelley", (*EstimateFeeCmd)(nil), flags)
+
 }

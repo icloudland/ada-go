@@ -5,16 +5,16 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/dyninc/qstring"
+	"github.com/icloudland/ada-go/adajson"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"sync"
-	"errors"
-	"strings"
-	"github.com/icloudland/ada-go/adajson"
-	"github.com/dyninc/qstring"
 	"reflect"
+	"strings"
+	"sync"
 )
 
 var (
@@ -39,6 +39,7 @@ type jsonRequest struct {
 	cmd            interface{}
 	marshalledJSON []byte
 	responseChan   chan *response
+	version        string
 }
 
 type Client struct {
@@ -91,10 +92,20 @@ func (c *Client) handleSendRequestMessage(details *sendRequestDetails) {
 		return
 	}
 
+	if jReq.version == "shelley" {
+		if httpResponse.StatusCode >=300 {
+			err = fmt.Errorf("status code: %d, response: %q", httpResponse.StatusCode, string(respBytes))
+			jReq.responseChan <- &response{err: err}
+			return
+		}
+
+		jReq.responseChan <- &response{result: respBytes}
+		return
+	}
+
 	// Try to unmarshal the response as a regular JSON-RPC response.
 	var resp rawResponse
 	err = json.Unmarshal(respBytes, &resp)
-	fmt.Println(string(respBytes[:]))
 	if err != nil {
 		// When the response itself isn't a valid JSON-RPC response
 		// return an error which includes the HTTP status code and raw
@@ -224,6 +235,11 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 	path := methods[0]
 	requestType := strings.ToUpper(methods[1])
 
+	versionType := ""
+	if len(methods) >= 3 {
+		versionType = methods[2]
+	}
+
 	path = setUrlPath(cmd, path)
 	if requestType == "GET" {
 		queryString, err := qstring.MarshalString(cmd)
@@ -249,6 +265,7 @@ func (c *Client) sendCmd(cmd interface{}) chan *response {
 		cmd:            cmd,
 		marshalledJSON: marshalledJSON,
 		responseChan:   responseChan,
+		version:        versionType,
 	}
 	c.sendRequest(jReq)
 
